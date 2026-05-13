@@ -1,12 +1,19 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
+import '../../common/widgets/game_background.dart';
+import '../../common/widgets/game_header.dart';
+import '../../common/widgets/game_progress_bar.dart';
+import '../../common/widgets/game_card.dart';
+import '../../common/widgets/game_result_screen.dart';
+import '../../common/widgets/game_option_button.dart';
+import '../../common/widgets/game_colors.dart';
+
 class ChooseNumberScreen extends StatefulWidget {
   const ChooseNumberScreen({super.key});
 
   @override
-  State<ChooseNumberScreen> createState() =>
-      _ChooseNumberScreenState();
+  State<ChooseNumberScreen> createState() => _ChooseNumberScreenState();
 }
 
 class _ChooseNumberScreenState extends State<ChooseNumberScreen> {
@@ -31,12 +38,10 @@ class _ChooseNumberScreenState extends State<ChooseNumberScreen> {
   List<String> options = [];
   String? selected;
   bool answered = false;
+  bool showResult = false;
 
-  Map<String, String> get current => questions[index];
-  String get word => current["word"]!;
-  String get correct => current["number"]!;
-
-  double get progress => (index + 1) / questions.length;
+  String get word => questions[index]["word"]!;
+  String get correct => questions[index]["number"]!;
 
   @override
   void initState() {
@@ -44,180 +49,121 @@ class _ChooseNumberScreenState extends State<ChooseNumberScreen> {
     generateOptions();
   }
 
+  // ───────── OPTIONS ─────────
   void generateOptions() {
-    Set<String> temp = {correct};
     final rand = Random();
+    Set<String> set = {correct};
 
-    while (temp.length < 4) {
-      temp.add(numbers[rand.nextInt(numbers.length)]);
+    while (set.length < 4) {
+      set.add(numbers[rand.nextInt(numbers.length)]);
     }
 
-    options = temp.toList()..shuffle();
+    options = set.toList()..shuffle();
   }
 
+  // ───────── RESET ─────────
   void reset() {
     setState(() {
       index = 0;
       score = 0;
       selected = null;
       answered = false;
+      showResult = false;
       generateOptions();
     });
   }
 
-  void nextQuestion() {
-    if (index < questions.length - 1) {
-      setState(() {
-        index++;
-        selected = null;
-        answered = false;
-        generateOptions();
-      });
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ResultScreen(
-            score: score,
-            total: questions.length,
-            onRestart: () {
-              Navigator.pop(context);
-              reset();
-            },
-          ),
-        ),
-      );
-    }
-  }
-
+  // ───────── ANSWER ─────────
   void check(String value) async {
     if (answered) return;
 
     setState(() {
       selected = value;
       answered = true;
+
+      if (value == correct) score++;
     });
 
-    if (value == correct) score++;
+    await Future.delayed(const Duration(milliseconds: 600));
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
 
-    nextQuestion();
+    if (index == questions.length - 1) {
+      setState(() => showResult = true);
+    } else {
+      setState(() {
+        index++;
+        selected = null;
+        answered = false;
+        generateOptions();
+      });
+    }
   }
 
-  Color btnColor(String v) {
-    if (!answered) return Colors.white;
-    if (v == correct) return Colors.green;
-    if (v == selected) return Colors.red;
-    return Colors.white;
+  // ───────── COLORS ─────────
+  Color getColor(String v) {
+    if (!answered) return GameColors.option;
+
+    if (v == correct) return GameColors.correct;
+    if (v == selected) return GameColors.wrong;
+
+    return GameColors.disabled;
   }
 
-  Color txtColor(String v) {
-    if (!answered) return const Color(0xFF173F73);
-    return Colors.white;
+  // ───────── TEXT FEEDBACK ─────────
+  String getText(String v) {
+    if (!answered) return v;
+
+    if (v == correct) return "$v ✔️";
+    if (v == selected) return "$v ❌";
+
+    return v;
   }
 
+  // ───────── UI ─────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF4FC3F7), Color(0xFF81C784)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      body: GameBackground(
         child: SafeArea(
-          child: Column(
+          child: showResult
+              ? GameResultScreen(
+            score: score,
+            total: questions.length,
+            onRestart: reset,
+          )
+              : Column(
             children: [
+              const SizedBox(height: 10),
 
-              /// 🔝 HEADER
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back,
-                          color: Colors.white),
-                    ),
-                    const Text(
-                      "اختبار الأرقام",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      "$score ⭐",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+              GameHeader(
+                title: "اختبار الأرقام 🔢",
+                score: score,
               ),
 
-              /// 📊 PROGRESS
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 10,
-                  backgroundColor: Colors.white30,
-                  valueColor:
-                  const AlwaysStoppedAnimation(Colors.orange),
-                ),
+              const SizedBox(height: 10),
+
+              GameProgressBar(
+                current: index,
+                total: questions.length,
               ),
 
               const SizedBox(height: 30),
 
-              const Text(
-                "اختر الرقم الصحيح 👇",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              /// 🟡 CARD
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(25),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 25,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.shade200,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    word,
-                    style: const TextStyle(
-                      fontSize: 38,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                    ),
+              // QUESTION
+              GameCard(
+                child: Text(
+                  word,
+                  style: const TextStyle(
+                    fontSize: 38,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
 
               const SizedBox(height: 20),
 
-              /// 🔢 OPTIONS
+              // OPTIONS
               Expanded(
                 child: GridView.builder(
                   padding: const EdgeInsets.all(20),
@@ -232,133 +178,16 @@ class _ChooseNumberScreenState extends State<ChooseNumberScreen> {
                   itemBuilder: (context, i) {
                     final v = options[i];
 
-                    return GestureDetector(
+                    return GameOptionButton(
+                      text: getText(v),
+                      color: getColor(v),
                       onTap: () => check(v),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        decoration: BoxDecoration(
-                          color: btnColor(v),
-                          borderRadius: BorderRadius.circular(25),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(.12),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            )
-                          ],
-                        ),
-                        child: Center(
-                          child: Text(
-                            v,
-                            style: TextStyle(
-                              fontSize: 38,
-                              fontWeight: FontWeight.bold,
-                              color: txtColor(v),
-                            ),
-                          ),
-                        ),
-                      ),
+                      disabled: answered,
                     );
                   },
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-class ResultScreen extends StatelessWidget {
-  final int score;
-  final int total;
-  final VoidCallback onRestart;
-
-  const ResultScreen({
-    super.key,
-    required this.score,
-    required this.total,
-    required this.onRestart,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF4FC3F7), Color(0xFF81C784)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Center(
-          child: Container(
-            margin: const EdgeInsets.all(20),
-            padding: const EdgeInsets.all(30),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(35),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 15,
-                  offset: Offset(0, 8),
-                )
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-
-                const Text(
-                  "🎉 ممتاز!",
-                  style: TextStyle(
-                    fontSize: 34,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                Text(
-                  "$score / $total",
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                Text(
-                  score == total
-                      ? "🔥 شاطر جدًا!"
-                      : "👍 حاول مرة تانية",
-                  style: const TextStyle(fontSize: 20),
-                ),
-
-                const SizedBox(height: 30),
-
-                ElevatedButton.icon(
-                  onPressed: onRestart,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text("إعادة اللعب"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 30,
-                      vertical: 14,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                ),
-
-              ],
-            ),
           ),
         ),
       ),

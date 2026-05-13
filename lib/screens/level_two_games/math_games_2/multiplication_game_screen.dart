@@ -1,5 +1,13 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:flutter/material.dart';
+
+import '../../common/widgets/game_background.dart';
+import '../../common/widgets/game_header.dart';
+import '../../common/widgets/game_progress_bar.dart';
+import '../../common/widgets/game_card.dart';
+import '../../common/widgets/game_option_button.dart';
+import '../../common/widgets/game_result_screen.dart';
+import '../../common/widgets/game_colors.dart';
 
 class MultiplicationGameScreen extends StatefulWidget {
   const MultiplicationGameScreen({super.key});
@@ -20,7 +28,11 @@ class _MultiplicationGameScreenState extends State<MultiplicationGameScreen> {
 
   int score = 0;
   int questionNumber = 0;
+
   bool answered = false;
+  bool showResult = false;
+
+  int get correct => num1 * num2;
 
   @override
   void initState() {
@@ -28,6 +40,7 @@ class _MultiplicationGameScreenState extends State<MultiplicationGameScreen> {
     generateQuestion();
   }
 
+  // ───────── GENERATE QUESTION ─────────
   void generateQuestion() {
     num1 = _random.nextInt(5) + 1;
     num2 = _random.nextInt(5) + 1;
@@ -35,9 +48,8 @@ class _MultiplicationGameScreenState extends State<MultiplicationGameScreen> {
     selectedAnswer = null;
     answered = false;
 
-    int correct = num1 * num2;
-
     Set<int> set = {correct};
+
     while (set.length < 4) {
       set.add(_random.nextInt(25) + 1);
     }
@@ -47,184 +59,131 @@ class _MultiplicationGameScreenState extends State<MultiplicationGameScreen> {
     setState(() {});
   }
 
-  void checkAnswer(int answer) {
+  // ───────── RESET ─────────
+  void reset() {
+    setState(() {
+      score = 0;
+      questionNumber = 0;
+      showResult = false;
+      generateQuestion();
+    });
+  }
+
+  // ───────── CHECK ANSWER ─────────
+  void checkAnswer(int answer) async {
     if (answered) return;
 
     setState(() {
       selectedAnswer = answer;
       answered = true;
 
-      if (answer == num1 * num2) {
+      if (answer == correct) {
         score++;
       }
     });
 
-    Future.delayed(const Duration(seconds: 1), () {
-      questionNumber++;
+    await Future.delayed(const Duration(milliseconds: 700));
 
-      if (questionNumber < 10) {
+    if (!mounted) return;
+
+    if (questionNumber == 9) {
+      setState(() => showResult = true);
+    } else {
+      setState(() {
+        questionNumber++;
         generateQuestion();
-      } else {
-        showResult();
-      }
-    });
+      });
+    }
   }
 
-  void showResult() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
-        ),
-        title: const Text(
-          "🎉 ممتاز",
-          textAlign: TextAlign.center,
-        ),
-        content: Text("النتيجة: $score من 10"),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() {
-                score = 0;
-                questionNumber = 0;
-              });
-              generateQuestion();
-            },
-            child: const Text("إعادة اللعب"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            child: const Text("خروج"),
-          ),
-        ],
-      ),
-    );
+  // ───────── COLORS ─────────
+  Color getColor(int opt) {
+    if (!answered) return GameColors.option;
+
+    if (opt == correct) return GameColors.correct;
+    if (opt == selectedAnswer) return GameColors.wrong;
+
+    return GameColors.disabled;
   }
 
-  Color optionColor(int opt) {
-    if (selectedAnswer == null) return Colors.white;
+  // ───────── TEXT (✔️ ❌) ─────────
+  String getText(int opt) {
+    if (!answered) return "$opt";
 
-    if (opt == num1 * num2) return Colors.green;
-    if (opt == selectedAnswer) return Colors.red;
+    if (opt == correct) return "$opt ✔️";
+    if (opt == selectedAnswer) return "$opt ❌";
 
-    return Colors.white;
+    return "$opt";
   }
 
-  Color textColor() {
-    return selectedAnswer == null ? Colors.black : Colors.white;
-  }
-
+  // ───────── UI ─────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF4FC3F7), Color(0xFF81C784)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-
+      body: GameBackground(
         child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 10),
+          child: showResult
+              ? GameResultScreen(
+            score: score,
+            total: 10,
+            onRestart: reset,
+          )
+              : Column(
+            children: [
+              const SizedBox(height: 10),
 
-                  const Text(
-                    "لعبة الضرب ✖",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  Text(
-                    "النقاط: $score",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  /// السؤال
-                  Container(
-                    margin: const EdgeInsets.all(15),
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      "$num1 × $num2 = ؟",
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-
-                  /// الاختيارات (مظبوطة ومش لازقة)
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(20),
-                    itemCount: options.length,
-                    gridDelegate:
-                    const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 150,
-                      childAspectRatio: 2.5,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                    ),
-                    itemBuilder: (context, index) {
-                      int opt = options[index];
-
-                      return InkWell(
-                        onTap: () => checkAnswer(opt),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: optionColor(opt),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "$opt",
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: textColor(),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  Text(
-                    "السؤال ${questionNumber + 1} من 10",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-
-                  const SizedBox(height: 20),
-                ],
+              GameHeader(
+                title: "لعبة الضرب ✖",
+                score: score,
               ),
-            ),
+
+              const SizedBox(height: 10),
+
+              GameProgressBar(
+                current: questionNumber,
+                total: 10,
+              ),
+
+              const SizedBox(height: 30),
+
+              // QUESTION
+              GameCard(
+                child: Text(
+                  "$num1 × $num2 = ?",
+                  style: const TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // OPTIONS
+              Expanded(
+                child: GridView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: options.length,
+                  gridDelegate:
+                  const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 15,
+                    mainAxisSpacing: 15,
+                    childAspectRatio: 1.4,
+                  ),
+                  itemBuilder: (context, i) {
+                    final opt = options[i];
+
+                    return GameOptionButton(
+                      text: getText(opt),
+                      color: getColor(opt),
+                      disabled: answered,
+                      onTap: () => checkAnswer(opt),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

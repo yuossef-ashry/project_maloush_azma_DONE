@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../common/widgets/game_background.dart';
+import '../../common/widgets/game_header.dart';
+import '../../common/widgets/game_progress_bar.dart';
+import '../../common/widgets/game_card.dart';
+
 class MonthsScreen extends StatefulWidget {
   const MonthsScreen({super.key});
 
@@ -24,119 +29,123 @@ class _MonthsScreenState extends State<MonthsScreen> {
   ];
 
   int currentIndex = 0;
-  int? selectedMonth;
 
   Color getSeasonColor(String season) {
     switch (season) {
-      case "شتاء": return const Color(0xFF4FC3F7);
-      case "ربيع": return const Color(0xFF81C784);
-      case "صيف": return const Color(0xFFFFB74D);
-      case "خريف": return const Color(0xFFFF8A65);
-      default: return const Color(0xFF4FC3F7);
+      case "شتاء":
+        return const Color(0xFF42A5F5);
+
+      case "ربيع":
+        return const Color(0xFF66BB6A);
+
+      case "صيف":
+        return const Color(0xFFFFA726);
+
+      case "خريف":
+        return const Color(0xFFFF7043);
+
+      default:
+        return const Color(0xFF42A5F5);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final month = months[currentIndex];
-    final color = getSeasonColor(month["season"]);
+    final Color color = getSeasonColor(month["season"]);
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [color, color.withOpacity(0.6)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      body: GameBackground(
         child: SafeArea(
           child: Column(
             children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.arrow_forward, color: Colors.white),
-                    ),
-                    const Text('شهور السنة',
-                        style: TextStyle(color: Colors.white, fontSize: 22,
-                            fontWeight: FontWeight.bold)),
-                    Text('${currentIndex + 1} / ${months.length}',
-                        style: const TextStyle(color: Colors.white, fontSize: 16)),
-                  ],
-                ),
+              const SizedBox(height: 10),
+
+              // ───────── HEADER ─────────
+              const GameHeader(
+                title: "شهور السنة",
+                score: 0,
               ),
 
-              // Progress Bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: LinearProgressIndicator(
-                  value: (currentIndex + 1) / months.length,
-                  backgroundColor: Colors.white24,
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
-                  minHeight: 6,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+              const SizedBox(height: 10),
+
+              // ───────── PROGRESS ─────────
+              GameProgressBar(
+                current: currentIndex,
+                total: months.length,
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 25),
 
-              // Month Card
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                ),
+              // ───────── MONTH CARD ─────────
+              GameCard(
                 child: Column(
                   children: [
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: 90,
+                      height: 90,
                       decoration: BoxDecoration(
                         color: color,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(24),
                       ),
                       child: Center(
-                        child: Text(month["number"],
-                            style: const TextStyle(fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white)),
+                        child: Text(
+                          month["number"],
+                          style: const TextStyle(
+                            fontSize: 34,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    Text(month["name"],
-                        style: const TextStyle(fontSize: 36,
-                            fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 12),
+
+                    const SizedBox(height: 18),
+
+                    Text(
+                      month["name"],
+                      style: const TextStyle(
+                        fontSize: 38,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 14),
+
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                        horizontal: 18,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.2),
+                        color: color.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Text('${month["icon"]} ${month["season"]}',
-                          style: TextStyle(fontSize: 18, color: color,
-                              fontWeight: FontWeight.bold)),
+                      child: Text(
+                        "${month["icon"]} ${month["season"]}",
+                        style: TextStyle(
+                          color: color,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 12),
+
+                    const SizedBox(height: 18),
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(months.length, (i) {
-                        return Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 2),
-                          width: 8,
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                          width: i == currentIndex ? 18 : 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: i == currentIndex ? color : color.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(20),
+                            color: i == currentIndex
+                                ? color
+                                : color.withOpacity(0.3),
                           ),
                         );
                       }),
@@ -145,46 +154,63 @@ class _MonthsScreenState extends State<MonthsScreen> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 25),
 
-              // Months Grid
+              // ───────── MONTHS LIST ─────────
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    alignment: WrapAlignment.center,
-                    children: List.generate(months.length, (i) {
-                      bool isSelected = i == currentIndex;
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            currentIndex = i;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: isSelected ? Colors.orange : Colors.white24,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(months[i]["name"],
+                  child: SingleChildScrollView(
+                    child: Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      alignment: WrapAlignment.center,
+                      children: List.generate(months.length, (i) {
+                        final bool isSelected = i == currentIndex;
+
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              currentIndex = i;
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? Colors.orange
+                                  : Colors.white24,
+                              borderRadius: BorderRadius.circular(22),
+                              border: Border.all(
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.transparent,
+                                width: 2,
+                              ),
+                            ),
+                            child: Text(
+                              months[i]["name"],
                               style: TextStyle(
-                                  color: isSelected ? Colors.white : Colors.white,
-                                  fontWeight: isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  fontSize: 14)),
-                        ),
-                      );
-                    }),
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
                   ),
                 ),
               ),
 
-              // Buttons
+              // ───────── BUTTONS ─────────
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
@@ -192,33 +218,60 @@ class _MonthsScreenState extends State<MonthsScreen> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: currentIndex > 0
-                            ? () => setState(() => currentIndex--)
+                            ? () {
+                          setState(() {
+                            currentIndex--;
+                          });
+                        }
                             : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          disabledBackgroundColor: Colors.white24,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30)),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
                         ),
-                        child: const Text('→ السابق',
-                            style: TextStyle(fontSize: 18, color: Colors.white)),
+                        child: const Text(
+                          "→ السابق",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
+
                     const SizedBox(width: 12),
+
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: currentIndex < months.length - 1
-                            ? () => setState(() => currentIndex++)
-                            : () => Navigator.pop(context),
+                        onPressed: () {
+                          if (currentIndex < months.length - 1) {
+                            setState(() {
+                              currentIndex++;
+                            });
+                          } else {
+                            Navigator.pop(context);
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30)),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
                         ),
                         child: Text(
-                          currentIndex < months.length - 1 ? '← التالي' : 'تم ✓',
-                          style: TextStyle(fontSize: 18, color: color),
+                          currentIndex < months.length - 1
+                              ? "← التالي"
+                              : "تم ✓",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: color,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),

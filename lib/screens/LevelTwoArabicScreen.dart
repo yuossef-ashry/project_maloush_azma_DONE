@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+
 import 'level_two_games/arabic_games_2/spelling_game_screen.dart';
-import 'level_two_games/arabic_games_2/animals_spelling_screen.dart';
 import 'level_two_games/arabic_games_2/choose_answer_screen.dart';
 import 'level_two_games/arabic_games_2/months_screen.dart';
 import 'level_two_games/arabic_games_2/drag_drop_screen.dart';
@@ -10,14 +10,44 @@ import 'level_two_games/arabic_games_2/quran_quiz_screen.dart';
 class LevelTwoArabicScreen extends StatelessWidget {
   LevelTwoArabicScreen({super.key});
 
-  final List<Map<String, String>> items = [
-    {"title": "الاملاء", "image": "assets/images/7.jpeg"},
-    {"title": "املاء اسماء الحيوانات", "image": "assets/images/8.jpeg"},
-    {"title": "اختر الاجابة الصحيحة", "image": "assets/images/9.jpeg"},
-    {"title": "السحب والافلات", "image": "assets/images/10.jpeg"},
-    {"title": "شهور السنة", "image": "assets/images/11.jpeg"},
-    {"title": "القرآن الكريم", "image": "assets/images/12.jpeg"},
-    {"title": "اختبار القرآن", "image": "assets/images/55.jpeg"},
+  final List<Map<String, dynamic>> items = [
+    {
+      "title": "الاملاء",
+      "image": "assets/images/7.jpeg",
+      "page": const SpellingGameScreen(),
+      "color": Colors.orange,
+    },
+
+    {
+      "title": "اختر الاجابة الصحيحة",
+      "image": "assets/images/9.jpeg",
+      "page": const ChooseAnswerScreen(),
+      "color": Colors.purple,
+    },
+    {
+      "title": "السحب والافلات",
+      "image": "assets/images/10.jpeg",
+      "page": const DragDropScreen(),
+      "color": Colors.green,
+    },
+    {
+      "title": "شهور السنة",
+      "image": "assets/images/11.jpeg",
+      "page": const MonthsScreen(),
+      "color": Colors.red,
+    },
+    {
+      "title": "القرآن الكريم",
+      "image": "assets/images/12.jpeg",
+      "page": const QuranScreen(),
+      "color": Colors.teal,
+    },
+    {
+      "title": "اختبار القرآن",
+      "image": "assets/images/55.jpeg",
+      "page": const QuranQuizScreen(),
+      "color": Colors.indigo,
+    },
   ];
 
   @override
@@ -31,20 +61,27 @@ class LevelTwoArabicScreen extends StatelessWidget {
             end: Alignment.bottomCenter,
           ),
         ),
+
         child: SafeArea(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 25),
 
-              /// 📦 العنوان
+              const SizedBox(height: 30),
+
+              /// ⭐ العنوان
               Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 25,
                   vertical: 12,
+                  horizontal: 25,
                 ),
+
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(25),
+
                   boxShadow: const [
                     BoxShadow(
                       color: Colors.black26,
@@ -53,30 +90,37 @@ class LevelTwoArabicScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+
                 child: const Text(
                   "المستوى الثاني - عربي",
+                  textAlign: TextAlign.center,
+
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: Colors.deepOrange,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 25),
 
+              /// 📦 الجريد
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+
                   child: GridView.builder(
                     itemCount: items.length,
+
                     gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 200,
-                          childAspectRatio: 0.85,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                        ),
+                    const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 14,
+                      crossAxisSpacing: 14,
+                      childAspectRatio: 0.85,
+                    ),
+
                     itemBuilder: (context, index) {
                       return buildCard(context, items[index]);
                     },
@@ -90,92 +134,75 @@ class LevelTwoArabicScreen extends StatelessWidget {
     );
   }
 
-  Widget buildCard(BuildContext context, Map<String, String> item) {
-    return InkWell(
+  /// 🎴 الكروت
+  Widget buildCard(
+      BuildContext context,
+      Map<String, dynamic> item,
+      ) {
+    return GestureDetector(
       onTap: () {
-        if (item["title"] == "الاملاء") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const SpellingGameScreen()),
-          );
-        } else if (item["title"] == "املاء اسماء الحيوانات") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AnimalsSpellingScreen()),
-          );
-        } else if (item["title"] == "اختر الاجابة الصحيحة") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ChooseAnswerScreen()),
-          );
-        } else if (item["title"] == "شهور السنة") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const MonthsScreen()),
-          );
-        } else if (item["title"] == "السحب والافلات") {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => const DragDropScreen(),
-    ),
-  );
-  } else if (item["title"] == "القرآن الكريم") {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => const QuranScreen(),
-    ),
-  );
-}else if (item["title"] == "اختبار القرآن") {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (_) => const QuranQuizScreen()),
-  );
-}
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => item["page"],
+          ),
+        );
       },
+
       child: Container(
+        margin: const EdgeInsets.all(5),
+        padding: const EdgeInsets.all(15),
+
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(25),
+          color: item["color"],
+          borderRadius: BorderRadius.circular(30),
+
           boxShadow: const [
             BoxShadow(
-              color: Colors.black26,
-              blurRadius: 10,
-              offset: Offset(0, 5),
+              color: Colors.black38,
+              blurRadius: 12,
+              offset: Offset(0, 6),
             ),
           ],
         ),
+
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            /// 🖼️ صورة بشكل أجمل ومقصوص صح
+
+            /// 🟢 الصورة الدائرية
             Container(
-              width: 90,
-              height: 90,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.grey.shade100,
+              width: 85,
+              height: 85,
+
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset(item["image"]!, fit: BoxFit.cover),
+
+              child: ClipOval(
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+
+                  child: Image.asset(
+                    item["image"],
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
             ),
 
             const SizedBox(height: 12),
 
             /// 📝 العنوان
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Text(
-                item["title"]!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+            Text(
+              item["title"],
+              textAlign: TextAlign.center,
+
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],

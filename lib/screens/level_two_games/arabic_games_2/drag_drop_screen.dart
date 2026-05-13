@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../common/widgets/game_background.dart';
+import '../../common/widgets/game_header.dart';
+import '../../common/widgets/game_progress_bar.dart';
+import '../../common/widgets/game_card.dart';
+import '../../common/widgets/game_result_screen.dart';
+
 class DragDropScreen extends StatefulWidget {
   const DragDropScreen({super.key});
 
@@ -34,28 +40,30 @@ class _DragDropScreenState extends State<DragDropScreen> {
       "correctWord": "جمل",
       "options": ["فيل", "جمل", "ذئب"],
     },
-    {
-      "image": "🍎",
-      "correctWord": "تفاحة",
-      "options": ["موزة", "تفاحة", "برتقال"],
-    },
-    {
-      "image": "🍌",
-      "correctWord": "موزة",
-      "options": ["موزة", "عنب", "تفاحة"],
-    },
-    {
-      "image": "🍊",
-      "correctWord": "برتقال",
-      "options": ["تفاحة", "موزة", "برتقال"],
-    },
   ];
 
   int currentIndex = 0;
   int score = 0;
+
   String? droppedWord;
   bool? isCorrect;
 
+  bool showResult = false;
+
+  Map<String, dynamic> get q => questions[currentIndex];
+
+  // ───────── RESET ─────────
+  void reset() {
+    setState(() {
+      currentIndex = 0;
+      score = 0;
+      droppedWord = null;
+      isCorrect = null;
+      showResult = false;
+    });
+  }
+
+  // ───────── NEXT QUESTION ─────────
   void nextQuestion() {
     if (currentIndex < questions.length - 1) {
       setState(() {
@@ -64,14 +72,45 @@ class _DragDropScreenState extends State<DragDropScreen> {
         isCorrect = null;
       });
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => DragDropResultScreen(
-              score: score, total: questions.length),
-        ),
-      );
+      setState(() {
+        showResult = true;
+      });
     }
+  }
+
+  // ───────── COLORS ─────────
+  Color getDropColor() {
+    if (droppedWord == null) return Colors.grey.shade100;
+
+    return isCorrect == true
+        ? Colors.green.shade100
+        : Colors.red.shade100;
+  }
+
+  Color getBorderColor() {
+    if (droppedWord == null) return Colors.grey;
+
+    return isCorrect == true
+        ? Colors.green
+        : Colors.red;
+  }
+
+  Color getTextColor() {
+    if (droppedWord == null) return Colors.grey;
+
+    return isCorrect == true
+        ? Colors.green
+        : Colors.red;
+  }
+
+  String getDisplayText() {
+    if (droppedWord == null) {
+      return "اسحب الإجابة هنا";
+    }
+
+    return isCorrect == true
+        ? "$droppedWord ✔️"
+        : "$droppedWord ❌";
   }
 
   @override
@@ -79,128 +118,94 @@ class _DragDropScreenState extends State<DragDropScreen> {
     final q = questions[currentIndex];
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF26C6DA), Color(0xFF00ACC1)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      body: GameBackground(
         child: SafeArea(
-          child: Column(
+          child: showResult
+              ? GameResultScreen(
+            score: score,
+            total: questions.length,
+            onRestart: reset,
+          )
+              : Column(
             children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.arrow_forward, color: Colors.white),
-                    ),
-                    const Text('السحب والإفلات',
-                        style: TextStyle(color: Colors.white, fontSize: 22,
-                            fontWeight: FontWeight.bold)),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white24,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.star, color: Colors.yellow, size: 20),
-                          const SizedBox(width: 4),
-                          Text('$score', style: const TextStyle(
-                              color: Colors.white, fontSize: 16)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              const SizedBox(height: 10),
+
+              GameHeader(
+                title: "السحب والإفلات",
+                score: score,
               ),
 
-              // Progress
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(questions.length, (i) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      width: 30,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: i <= currentIndex ? Colors.white : Colors.white24,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    );
-                  }),
-                ),
+              const SizedBox(height: 10),
+
+              GameProgressBar(
+                current: currentIndex,
+                total: questions.length,
               ),
 
               const SizedBox(height: 20),
 
-              // Image + Drop Zone
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                ),
+              // ───────── QUESTION CARD ─────────
+              GameCard(
                 child: Column(
                   children: [
-                    Text(q["image"], style: const TextStyle(fontSize: 100)),
-                    const SizedBox(height: 16),
-                    const Text('اسحب الكلمة الصحيحة وضعها على الصورة',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 16, color: Colors.grey)),
+                    Text(
+                      q["image"],
+                      style: const TextStyle(fontSize: 90),
+                    ),
+
                     const SizedBox(height: 16),
 
-                    // Drop Zone
+                    const Text(
+                      "اسحب الكلمة الصحيحة",
+                      style: TextStyle(fontSize: 16),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // ───────── DROP AREA ─────────
                     DragTarget<String>(
                       onAcceptWithDetails: (details) {
+                        if (droppedWord != null) return;
+
                         setState(() {
                           droppedWord = details.data;
-                          isCorrect = details.data == q["correctWord"];
-                          if (isCorrect!) score++;
+                          isCorrect =
+                              details.data == q["correctWord"];
+
+                          if (isCorrect == true) {
+                            score++;
+                          }
                         });
-                        Future.delayed(const Duration(seconds: 1), nextQuestion);
+
+                        Future.delayed(
+                          const Duration(milliseconds: 800),
+                          nextQuestion,
+                        );
                       },
-                      builder: (context, candidateData, rejectedData) {
+                      builder: (
+                          context,
+                          candidateData,
+                          rejectedData,
+                          ) {
                         return Container(
                           width: double.infinity,
-                          height: 60,
+                          height: 65,
                           decoration: BoxDecoration(
-                            color: droppedWord == null
-                                ? Colors.grey.shade100
-                                : isCorrect!
-                                ? Colors.green.shade100
-                                : Colors.red.shade100,
-                            borderRadius: BorderRadius.circular(16),
+                            color: getDropColor(),
+                            borderRadius:
+                            BorderRadius.circular(16),
                             border: Border.all(
-                              color: droppedWord == null
-                                  ? Colors.grey.shade300
-                                  : isCorrect!
-                                  ? Colors.green
-                                  : Colors.red,
+                              color: getBorderColor(),
                               width: 2,
                             ),
                           ),
                           child: Center(
                             child: Text(
-                              droppedWord ?? '؟',
+                              getDisplayText(),
                               style: TextStyle(
-                                fontSize: 24,
+                                fontSize: 22,
                                 fontWeight: FontWeight.bold,
-                                color: droppedWord == null
-                                    ? Colors.grey
-                                    : isCorrect!
-                                    ? Colors.green
-                                    : Colors.red,
+                                color: getTextColor(),
                               ),
                             ),
                           ),
@@ -213,53 +218,40 @@ class _DragDropScreenState extends State<DragDropScreen> {
 
               const SizedBox(height: 30),
 
-              // Draggable Words
-              const Text('👇 اسحب الكلمة الصحيحة',
-                  style: TextStyle(color: Colors.white, fontSize: 16)),
-              const SizedBox(height: 12),
+              const Text(
+                "👇 اسحب الكلمة الصحيحة",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
 
+              const SizedBox(height: 16),
+
+              // ───────── OPTIONS ─────────
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: (q["options"] as List<String>).map((word) {
+                mainAxisAlignment:
+                MainAxisAlignment.center,
+                children:
+                (q["options"] as List<String>).map((word) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                    ),
                     child: Draggable<String>(
                       data: word,
-                      feedback: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(word,
-                            style: const TextStyle(fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white)),
+
+                      feedback: Material(
+                        color: Colors.transparent,
+                        child: buildWordBox(word),
                       ),
-                      childWhenDragging: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white24,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(word,
-                            style: const TextStyle(fontSize: 22,
-                                color: Colors.white54)),
+
+                      childWhenDragging: Opacity(
+                        opacity: 0.3,
+                        child: buildWordBox(word),
                       ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(word,
-                            style: const TextStyle(fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white)),
-                      ),
+
+                      child: buildWordBox(word),
                     ),
                   );
                 }).toList(),
@@ -270,90 +262,24 @@ class _DragDropScreenState extends State<DragDropScreen> {
       ),
     );
   }
-}
 
-class DragDropResultScreen extends StatelessWidget {
-  final int score;
-  final int total;
-
-  const DragDropResultScreen(
-      {super.key, required this.score, required this.total});
-
-  @override
-  Widget build(BuildContext context) {
-    int stars = score >= total * 0.8 ? 3 : score >= total * 0.5 ? 2 : 1;
-
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF4FC3F7), Color(0xFF81C784)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('🏆', style: TextStyle(fontSize: 80)),
-                const SizedBox(height: 16),
-                const Text('أحسنت!',
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold,
-                        color: Colors.white)),
-                const SizedBox(height: 8),
-                Text('درجتك: $score / $total',
-                    style: const TextStyle(fontSize: 22, color: Colors.white)),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(3, (i) {
-                    return Icon(
-                      Icons.star,
-                      size: 40,
-                      color: i < stars ? Colors.yellow : Colors.white38,
-                    );
-                  }),
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const DragDropScreen()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                  ),
-                  child: const Text('إعادة اللعب',
-                      style: TextStyle(fontSize: 18,
-                          color: Color(0xFF26C6DA))),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton(
-                  onPressed: () {
-                    Navigator.popUntil(context, (route) => route.isFirst);
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.white),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                  ),
-                  child: const Text('الرئيسية',
-                      style: TextStyle(fontSize: 18, color: Colors.white)),
-                ),
-              ],
-            ),
-          ),
+  // ───────── WORD BOX ─────────
+  Widget buildWordBox(String word) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 12,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.orange,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        word,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
         ),
       ),
     );

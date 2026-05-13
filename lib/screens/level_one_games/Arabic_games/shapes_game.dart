@@ -1,6 +1,13 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
+import '../../common/widgets/game_background.dart';
+import '../../common/widgets/game_header.dart';
+import '../../common/widgets/game_progress_bar.dart';
+import '../../common/widgets/game_card.dart';
+import '../../common/widgets/game_result_screen.dart';
+import '../../common/widgets/game_colors.dart';
+
 class ShapesGame extends StatefulWidget {
   const ShapesGame({super.key});
 
@@ -13,9 +20,12 @@ class _ShapesGameState extends State<ShapesGame> {
     {"image": "assets/images/dog.png", "name": "كلب"},
     {"image": "assets/images/cat.png", "name": "قطة"},
     {"image": "assets/images/lion.png", "name": "أسد"},
+    {"image": "assets/images/elephant.png", "name": "فيل"},
+    {"image": "assets/images/horse.png", "name": "حصان"},
+    {"image": "assets/images/bird.png", "name": "طائر"},
   ];
 
-  final List<String> words = ["كلب", "قطة", "أسد", "فيل", "حصان"];
+  final List<String> words = ["كلب", "قطة", "أسد", "فيل", "حصان", "طائر"];
 
   int index = 0;
   int score = 0;
@@ -36,6 +46,7 @@ class _ShapesGameState extends State<ShapesGame> {
   String get image => questions[index]["image"];
   String get correct => questions[index]["name"];
 
+  // ───────── OPTIONS ─────────
   void generateOptions() {
     final rand = Random();
     Set<String> set = {correct};
@@ -47,6 +58,7 @@ class _ShapesGameState extends State<ShapesGame> {
     options = set.toList()..shuffle();
   }
 
+  // ───────── ANSWER ─────────
   void checkAnswer(String value) {
     if (showFeedback) return;
 
@@ -54,9 +66,9 @@ class _ShapesGameState extends State<ShapesGame> {
       droppedWord = value;
       showFeedback = true;
       isCorrect = value == correct;
-    });
 
-    if (isCorrect) score++;
+      if (isCorrect) score++;
+    });
 
     Future.delayed(const Duration(milliseconds: 800), () {
       if (!mounted) return;
@@ -82,116 +94,114 @@ class _ShapesGameState extends State<ShapesGame> {
       droppedWord = null;
       showFeedback = false;
       showResult = false;
+      isCorrect = false;
       generateOptions();
     });
   }
 
+  // ───────── COLORS ─────────
+  Color getWordColor() {
+    if (!showFeedback) return GameColors.option;
+    return isCorrect ? GameColors.correct : GameColors.wrong;
+  }
+
+  IconData getIcon() {
+    if (!showFeedback) return Icons.help_outline;
+    return isCorrect ? Icons.check_circle : Icons.cancel;
+  }
+
+  // ───────── UI ─────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF4FC3F7), Color(0xFF66BB6A)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      body: GameBackground(
         child: SafeArea(
-          child: showResult ? buildResult() : buildGame(),
+          child: showResult ? _result() : _game(),
         ),
       ),
     );
   }
 
-  // ───── GAME ─────
-  Widget buildGame() {
+  // ───────── RESULT ─────────
+  Widget _result() {
+    return GameResultScreen(
+      score: score,
+      total: questions.length,
+      onRestart: restart,
+    );
+  }
+
+  // ───────── GAME ─────────
+  Widget _game() {
     return Column(
       children: [
+        const SizedBox(height: 10),
 
-        // HEADER
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.pop(context),
-              ),
-              const Text(
-                "وصل الصورة بالكلمة",
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
-              Text(
-                "$score",
-                style: const TextStyle(color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-
-        // IMAGE CARD
-        Container(
-          margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.all(25),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: Image.asset(image, height: 140),
+        GameHeader(
+          title: "وصل الصورة بالكلمة 🧩",
+          score: score,
         ),
 
         const SizedBox(height: 10),
 
-        // DROP BOX
-        DragTarget<String>(
-          onAccept: (value) => checkAnswer(value),
-          builder: (context, candidate, rejected) {
-            return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              height: 120,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(25),
-                border: Border.all(
-                  color: showFeedback
-                      ? (isCorrect ? Colors.green : Colors.red)
-                      : Colors.grey.shade300,
-                  width: 3,
-                ),
-              ),
-              child: Center(
-                child: droppedWord == null
-                    ? const Text("⬇️ اسحب الكلمة هنا")
-                    : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      droppedWord!,
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: isCorrect ? Colors.green : Colors.red,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Icon(
-                      isCorrect ? Icons.check : Icons.close,
-                      color: isCorrect ? Colors.green : Colors.red,
-                      size: 30,
-                    )
-                  ],
-                ),
-              ),
-            );
-          },
+        GameProgressBar(
+          current: index,
+          total: questions.length,
         ),
 
         const SizedBox(height: 20),
 
-        // OPTIONS (تحت بعض بدل Grid)
+        // IMAGE
+        GameCard(
+          child: Image.asset(image, height: 150),
+        ),
+
+        const SizedBox(height: 15),
+
+        // DROP AREA
+        GameCard(
+          child: DragTarget<String>(
+            onAccept: checkAnswer,
+            builder: (context, _, __) {
+              return SizedBox(
+                height: 120,
+                child: Center(
+                  child: droppedWord == null
+                      ? const Text(
+                    "⬇️ اسحب الكلمة هنا",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                      : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        droppedWord!,
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: getWordColor(),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Icon(
+                        getIcon(),
+                        color: getWordColor(),
+                        size: 32,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+
+        const SizedBox(height: 15),
+
+        // OPTIONS
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -202,17 +212,24 @@ class _ShapesGameState extends State<ShapesGame> {
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
+
                   child: Draggable<String>(
                     data: word,
+
                     feedback: Material(
                       color: Colors.transparent,
-                      child: buildWord(word),
+                      child: SizedBox(
+                        width: 200,
+                        child: _wordCard(word),
+                      ),
                     ),
+
                     childWhenDragging: Opacity(
                       opacity: 0.4,
-                      child: buildWord(word),
+                      child: _wordCard(word),
                     ),
-                    child: buildWord(word),
+
+                    child: _wordCard(word),
                   ),
                 );
               },
@@ -223,14 +240,14 @@ class _ShapesGameState extends State<ShapesGame> {
     );
   }
 
-  // ───── WORD (بدون shadow) ─────
-  Widget buildWord(String text) {
+  // ───────── WORD CARD ─────────
+  Widget _wordCard(String text) {
     return Container(
       height: 55,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        color: const Color(0xFFFF9800),
+        color: GameColors.option,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
         text,
@@ -239,50 +256,6 @@ class _ShapesGameState extends State<ShapesGame> {
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
-      ),
-    );
-  }
-
-  // ───── RESULT ─────
-  Widget buildResult() {
-    int stars = (score / questions.length * 3).round();
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text("🏆", style: TextStyle(fontSize: 90)),
-
-          const Text(
-            "أحسنت!",
-            style: TextStyle(fontSize: 28, color: Colors.white),
-          ),
-
-          Text(
-            "درجتك: $score / ${questions.length}",
-            style: const TextStyle(color: Colors.white),
-          ),
-
-          const SizedBox(height: 10),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              3,
-                  (i) => Icon(
-                Icons.star,
-                color: i < stars ? Colors.amber : Colors.white30,
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          ElevatedButton(
-            onPressed: restart,
-            child: const Text("إعادة اللعب"),
-          ),
-        ],
       ),
     );
   }

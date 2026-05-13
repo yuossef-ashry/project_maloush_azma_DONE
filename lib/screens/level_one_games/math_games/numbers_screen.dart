@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 
+import '../../common/widgets/game_background.dart';
+import '../../common/widgets/game_header.dart';
+import '../../common/widgets/game_progress_bar.dart';
+import '../../common/widgets/game_card.dart';
+import '../../common/widgets/game_option_button.dart';
+import '../../common/widgets/app_colors.dart';
+
+
 class NumbersScreen extends StatefulWidget {
   const NumbersScreen({super.key});
 
@@ -28,21 +36,18 @@ class _NumbersScreenState extends State<NumbersScreen> {
   String get currentNumber => numbers[index]["num"]!;
   String get currentWord => numbers[index]["word"]!;
 
-  double get progress => (index + 1) / numbers.length;
-
   @override
   void initState() {
     super.initState();
     playSound();
   }
 
-  /// 🔊 تشغيل الصوت
-  void playSound() async {
+  Future<void> playSound() async {
     try {
       await player.stop();
       await player.play(AssetSource("sounds/$currentNumber.mp3"));
     } catch (e) {
-      debugPrint("Error: $e");
+      debugPrint("Sound Error: $e");
     }
   }
 
@@ -69,183 +74,82 @@ class _NumbersScreenState extends State<NumbersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF4FC3F7), Color(0xFF81C784)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      body: GameBackground(
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
+          child: Column(
+            children: [
+              const SizedBox(height: 10),
 
-                /// 🔝 العنوان
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    ),
-                    const Expanded(
-                      child: Text(
-                        "تعلم الأرقام",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 28,
+              GameHeader(
+                title: "تعلم الأرقام 🔢",
+                score: index + 1,
+              ),
+
+              const SizedBox(height: 10),
+
+              GameProgressBar(
+                current: index,
+                total: numbers.length,
+              ),
+
+              const SizedBox(height: 25),
+
+              Expanded(
+                child: GameCard(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        currentNumber,
+                        style: const TextStyle(
+                          fontSize: 120,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Colors.deepPurple,
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 48),
-                  ],
-                ),
 
-                const SizedBox(height: 20),
+                      const SizedBox(height: 15),
 
-                /// 📊 Progress
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "التقدم",
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                        Text(
-                          "${index + 1} / ${numbers.length}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: LinearProgressIndicator(
-                        value: progress,
-                        minHeight: 14,
-                        backgroundColor: Colors.white30,
-                        valueColor:
-                        const AlwaysStoppedAnimation(Colors.orange),
+                      Text(
+                        currentWord,
+                        style: const TextStyle(fontSize: 40),
                       ),
-                    ),
-                  ],
-                ),
 
-                const SizedBox(height: 40),
+                      const SizedBox(height: 25),
 
-                /// 🟡 الكارت
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(25),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(35),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 15,
-                          offset: Offset(0, 8),
-                        )
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-
-                        /// 🔢 الرقم الكبير
-                        Text(
-                          currentNumber,
-                          style: const TextStyle(
-                            fontSize: 120,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple,
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        /// 📝 اسم الرقم بالعربي
-                        Text(
-                          currentWord,
-                          style: const TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-
-                        const SizedBox(height: 30),
-
-                        /// 🔊 زر الصوت
-                        ElevatedButton.icon(
-                          onPressed: playSound,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 14,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                          icon: const Icon(Icons.volume_up),
-                          label: const Text("تشغيل الصوت 🔊"),
-                        ),
-                      ],
-                    ),
+                      GameOptionButton(
+                        text: "🔊 تشغيل الصوت",
+                        color: AppColors.primary ,
+                        onTap: playSound,
+                      ),
+                    ],
                   ),
                 ),
+              ),
 
-                const SizedBox(height: 25),
+              const SizedBox(height: 20),
 
-                /// ⬅️➡️ الأزرار
-                Row(
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: prev,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                        ),
-                        icon: const Icon(Icons.arrow_back),
-                        label: const Text("السابق"),
+                      child: GameOptionButton(
+                        text: "السابق",
+                        color: AppColors.orange,                        onTap: prev,
                       ),
                     ),
-                    const SizedBox(width: 15),
+                    const SizedBox(width: 10),
                     Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: next,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                        ),
-                        icon: const Icon(Icons.arrow_forward),
-                        label: const Text("التالي"),
+                      child: GameOptionButton(
+                        text: "التالي",
+                        color: AppColors.orange,                        onTap: next,
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

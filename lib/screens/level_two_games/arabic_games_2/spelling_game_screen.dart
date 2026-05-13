@@ -1,4 +1,13 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+
+import '../../common/widgets/game_background.dart';
+import '../../common/widgets/game_header.dart';
+import '../../common/widgets/game_progress_bar.dart';
+import '../../common/widgets/game_card.dart';
+import '../../common/widgets/game_option_button.dart';
+import '../../common/widgets/game_result_screen.dart';
+import '../../common/widgets/app_colors.dart';
 
 class SpellingGameScreen extends StatefulWidget {
   const SpellingGameScreen({super.key});
@@ -30,289 +39,156 @@ class _SpellingGameScreenState extends State<SpellingGameScreen> {
       "display": "ف؟ل",
       "options": ["ا", "و", "ي", "ة"],
     },
-    {
-      "image": "🐟",
-      "word": "سمكة",
-      "missing": "ك",
-      "display": "سم؟ة",
-      "options": ["ك", "ق", "ج", "ز"],
-    },
-    {
-      "image": "🌹",
-      "word": "وردة",
-      "missing": "ر",
-      "display": "و؟دة",
-      "options": ["و", "ر", "ب", "ن"],
-    },
-    {
-      "image": "🐦",
-      "word": "عصفور",
-      "missing": "و",
-      "display": "عصف؟ر",
-      "options": ["ا", "و", "ي", "ة"],
-    },
-    {
-      "image": "🐪",
-      "word": "جمل",
-      "missing": "م",
-      "display": "ج؟ل",
-      "options": ["ح", "م", "خ", "ك"],
-    },
-    {
-      "image": "🍌",
-      "word": "موزة",
-      "missing": "ز",
-      "display": "مو؟ة",
-      "options": ["ن", "م", "ز", "ف"],
-    },
   ];
 
-  int currentIndex = 0;
+  int index = 0;
   int score = 0;
-  int? selectedAnswer;
-  List<bool> visibleOptions = [true, true, true, true];
 
-  void checkAnswer(int optionIndex) {
-    if (selectedAnswer != null) return;
-    String selected = questions[currentIndex]["options"][optionIndex];
-    String correct = questions[currentIndex]["missing"];
+  int? selected;
+  bool answered = false;
+  bool showResult = false;
+
+  Map<String, dynamic> get q => questions[index];
+  String get correct => q["missing"];
+
+  // ───────── CHECK ─────────
+  void check(int i) {
+    if (answered) return;
+
     setState(() {
-      selectedAnswer = optionIndex;
-      if (selected == correct) score++;
-      for (int i = 0; i < 4; i++) {
-        if (i != optionIndex) visibleOptions[i] = false;
+      selected = i;
+      answered = true;
+
+      if (q["options"][i] == correct) {
+        score++;
       }
     });
-    Future.delayed(const Duration(seconds: 1), () {
-      if (currentIndex < questions.length - 1) {
-        setState(() {
-          currentIndex++;
-          selectedAnswer = null;
-          visibleOptions = [true, true, true, true];
-        });
+
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
+
+      if (index == questions.length - 1) {
+        setState(() => showResult = true);
       } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ResultScreen(score: score, total: questions.length),
-          ),
-        );
+        setState(() {
+          index++;
+          selected = null;
+          answered = false;
+        });
       }
+    });
+  }
+
+  // ───────── COLORS ─────────
+  Color getColor(int i) {
+    if (!answered) return AppColors.orange;
+
+    final value = q["options"][i];
+
+    if (value == correct) return AppColors.green;
+    if (i == selected) return Colors.red;
+
+    return AppColors.grey;
+  }
+
+  // ───────── TEXT (✔ ❌) ─────────
+  String getText(int i) {
+    if (!answered) return q["options"][i];
+
+    final value = q["options"][i];
+
+    if (value == correct) return "$value ✔️";
+    if (i == selected) return "$value ❌";
+
+    return value;
+  }
+
+  void reset() {
+    setState(() {
+      index = 0;
+      score = 0;
+      selected = null;
+      answered = false;
+      showResult = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final q = questions[currentIndex];
-    final List<String> options = List<String>.from(q["options"]);
-
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFFFB74D), Color(0xFFFFA726)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      body: GameBackground(
         child: SafeArea(
-          child: Column(
+          child: showResult
+              ? GameResultScreen(
+            score: score,
+            total: questions.length,
+            onRestart: reset,
+          )
+              : Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.arrow_forward, color: Colors.white),
-                    ),
-                    const Text('الإملاء',
-                        style: TextStyle(color: Colors.white, fontSize: 22,
-                            fontWeight: FontWeight.bold)),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white24,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.star, color: Colors.yellow, size: 20),
-                          const SizedBox(width: 4),
-                          Text('$score', style: const TextStyle(
-                              color: Colors.white, fontSize: 16)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              const SizedBox(height: 10),
+
+              GameHeader(
+                title: "الإملاء",
+                score: score,
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(questions.length, (i) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      width: 30,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: i <= currentIndex ? Colors.white : Colors.white24,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    );
-                  }),
-                ),
+
+              const SizedBox(height: 10),
+
+              GameProgressBar(
+                current: index,
+                total: questions.length,
               ),
+
               const SizedBox(height: 20),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                ),
+
+              GameCard(
                 child: Column(
                   children: [
-                    Text(q["image"], style: const TextStyle(fontSize: 80)),
-                    const SizedBox(height: 16),
-                    const Text('أكمل الكلمة بالحرف الناقص:',
-                        style: TextStyle(fontSize: 16, color: Colors.grey)),
-                    const SizedBox(height: 12),
                     Text(
-                      selectedAnswer != null &&
-                          options[selectedAnswer!] == q["missing"]
-                          ? q["word"]
-                          : q["display"],
-                      style: const TextStyle(fontSize: 36,
-                          fontWeight: FontWeight.bold),
-                      textDirection: TextDirection.rtl,
+                      q["image"],
+                      style: const TextStyle(fontSize: 80),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      q["display"],
+                      style: const TextStyle(fontSize: 32),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      "أكمل الكلمة بالحرف الناقص",
+                      style: TextStyle(fontSize: 16),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: GridView.count(
-                  shrinkWrap: true,
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 2,
-                  children: List.generate(4, (i) {
-                    if (!visibleOptions[i]) return const SizedBox();
-                    Color btnColor = const Color(0xFFFFB74D);
-                    if (selectedAnswer == i) {
-                      btnColor = options[i] == q["missing"]
-                          ? Colors.green : Colors.red;
-                    }
-                    return GestureDetector(
-                      onTap: () => checkAnswer(i),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: btnColor,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Center(
-                          child: Text(options[i],
-                              style: const TextStyle(fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white)),
-                        ),
-                      ),
-                    );
-                  }),
+
+              const SizedBox(height: 20),
+
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: GridView.builder(
+                    itemCount: 4,
+                    gridDelegate:
+                    const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 2,
+                    ),
+                    itemBuilder: (context, i) {
+                      return GameOptionButton(
+                        text: getText(i),
+                        color: getColor(i),
+                        disabled: answered,
+                        onTap: () => check(i),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ResultScreen extends StatelessWidget {
-  final int score;
-  final int total;
-
-  const ResultScreen({super.key, required this.score, required this.total});
-
-  @override
-  Widget build(BuildContext context) {
-    int stars = score >= total * 0.8 ? 3 : score >= total * 0.5 ? 2 : 1;
-
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF4FC3F7), Color(0xFF81C784)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('🏆', style: TextStyle(fontSize: 80)),
-                const SizedBox(height: 16),
-                const Text('أحسنت!',
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold,
-                        color: Colors.white)),
-                const SizedBox(height: 8),
-                Text('درجتك: $score / $total',
-                    style: const TextStyle(fontSize: 22, color: Colors.white)),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(3, (i) {
-                    return Icon(
-                      Icons.star,
-                      size: 40,
-                      color: i < stars ? Colors.yellow : Colors.white38,
-                    );
-                  }),
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const SpellingGameScreen()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                  ),
-                  child: const Text('إعادة اللعب',
-                      style: TextStyle(fontSize: 18, color: Color(0xFF4FC3F7))),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton(
-                  onPressed: () {
-                    Navigator.popUntil(context, (route) => route.isFirst);
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.white),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                  ),
-                  child: const Text('الرئيسية',
-                      style: TextStyle(fontSize: 18, color: Colors.white)),
-                ),
-              ],
-            ),
           ),
         ),
       ),
