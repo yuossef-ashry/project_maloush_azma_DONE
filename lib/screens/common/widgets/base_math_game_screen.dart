@@ -1,5 +1,5 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 import '../../common/widgets/game_background.dart';
 import '../../common/widgets/game_header.dart';
@@ -9,17 +9,19 @@ import '../../common/widgets/game_option_button.dart';
 import '../../common/widgets/game_result_screen.dart';
 import '../../common/widgets/game_colors.dart';
 
+abstract class BaseMathGameScreen extends StatefulWidget {
+  const BaseMathGameScreen({super.key});
 
-
-class DivisionGameScreen extends StatefulWidget {
-  const DivisionGameScreen({super.key});
+  String get title;
+  int get totalQuestions => 10;
 
   @override
-  State<DivisionGameScreen> createState() => _DivisionGameScreenState();
+  BaseMathGameState createState();
 }
 
-class _DivisionGameScreenState extends State<DivisionGameScreen> {
-  final Random _random = Random();
+abstract class BaseMathGameState<T extends BaseMathGameScreen>
+    extends State<T> {
+  final Random random = Random();
 
   int num1 = 0;
   int num2 = 0;
@@ -33,26 +35,20 @@ class _DivisionGameScreenState extends State<DivisionGameScreen> {
   bool answered = false;
   bool showResult = false;
 
-  @override
-  void initState() {
-    super.initState();
-    generateQuestion();
-  }
+  int get correctAnswer;
 
-  // ───────── GENERATE QUESTION ─────────
+  void generateNumbers();
+
   void generateQuestion() {
-    num2 = _random.nextInt(9) + 1;
-    int result = _random.nextInt(9) + 1;
-
-    num1 = num2 * result;
+    generateNumbers();
 
     selectedAnswer = null;
     answered = false;
 
-    Set<int> set = {result};
+    Set<int> set = {correctAnswer};
 
     while (set.length < 4) {
-      set.add(_random.nextInt(9) + 1);
+      set.add(random.nextInt(20) + 1);
     }
 
     options = set.toList()..shuffle();
@@ -60,7 +56,6 @@ class _DivisionGameScreenState extends State<DivisionGameScreen> {
     setState(() {});
   }
 
-  // ───────── RESET ─────────
   void reset() {
     setState(() {
       score = 0;
@@ -70,7 +65,6 @@ class _DivisionGameScreenState extends State<DivisionGameScreen> {
     });
   }
 
-  // ───────── CHECK ANSWER ─────────
   void checkAnswer(int answer) async {
     if (answered) return;
 
@@ -78,16 +72,16 @@ class _DivisionGameScreenState extends State<DivisionGameScreen> {
       selectedAnswer = answer;
       answered = true;
 
-      if (answer == num1 ~/ num2) {
+      if (answer == correctAnswer) {
         score++;
       }
     });
 
-    await Future.delayed(const Duration(milliseconds: 700));
+    await Future.delayed(const Duration(milliseconds: 600));
 
     if (!mounted) return;
 
-    if (questionNumber == 9) {
+    if (questionNumber == widget.totalQuestions - 1) {
       setState(() => showResult = true);
     } else {
       setState(() {
@@ -97,26 +91,28 @@ class _DivisionGameScreenState extends State<DivisionGameScreen> {
     }
   }
 
-  // ───────── COLORS ─────────
   Color getColor(int opt) {
     if (!answered) return GameColors.option;
-
-    if (opt == num1 ~/ num2) return GameColors.correct;
+    if (opt == correctAnswer) return GameColors.correct;
     if (opt == selectedAnswer) return GameColors.wrong;
-
     return GameColors.disabled;
   }
 
   String getText(int opt) {
     if (!answered) return "$opt";
-
-    if (opt == num1 ~/ num2) return "$opt ✔️";
+    if (opt == correctAnswer) return "$opt ✔️";
     if (opt == selectedAnswer) return "$opt ❌";
-
     return "$opt";
   }
 
-  // ───────── UI ─────────
+  Widget buildQuestion(BuildContext context);
+
+  @override
+  void initState() {
+    super.initState();
+    generateQuestion();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,43 +121,31 @@ class _DivisionGameScreenState extends State<DivisionGameScreen> {
           child: showResult
               ? GameResultScreen(
             score: score,
-            total: 10,
+            total: widget.totalQuestions,
             onRestart: reset,
           )
               : Column(
             children: [
               const SizedBox(height: 10),
 
-              // HEADER
               GameHeader(
-                title: "لعبة القسمة ➗",
+                title: widget.title,
                 score: score,
               ),
 
               const SizedBox(height: 10),
 
-              // PROGRESS
               GameProgressBar(
                 current: questionNumber,
-                total: 10,
-              ),
-
-              const SizedBox(height: 30),
-
-              // QUESTION
-              GameCard(
-                child: Text(
-                  "$num1 ÷ $num2 = ?",
-                  style: const TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                total: widget.totalQuestions,
               ),
 
               const SizedBox(height: 20),
 
-              // OPTIONS
+              GameCard(child: buildQuestion(context)),
+
+              const SizedBox(height: 20),
+
               Expanded(
                 child: GridView.builder(
                   padding: const EdgeInsets.all(20),
