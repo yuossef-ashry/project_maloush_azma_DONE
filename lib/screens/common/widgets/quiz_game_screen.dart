@@ -5,7 +5,11 @@ import 'package:audioplayers/audioplayers.dart';
 import 'game_background.dart';
 import 'game_header.dart';
 import 'game_progress_bar.dart';
+<<<<<<< HEAD
 import 'game_card_quiz.dart';
+=======
+import 'game_card.dart';
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
 import 'game_option_button.dart';
 import 'game_result_screen.dart';
 import 'app_colors.dart';
@@ -181,11 +185,19 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
 
             children: [
 
+<<<<<<< HEAD
               const SizedBox(height: 5),
 
               GameHeader(
                 title: widget.title,
                 score: score,
+=======
+              const SizedBox(height: 10),
+
+              GameHeader(
+                title: widget.title,
+                score: score, // ✔ رجعنا النقط الصح
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
               ),
 
               const SizedBox(height: 10),
@@ -195,19 +207,32 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
                 total: widget.questions.length,
               ),
 
+<<<<<<< HEAD
               const SizedBox(height: 50),
 
               GameCardQuiz(
                 child: Column(
                   children: [
                     const SizedBox(height: 20),
+=======
+              const SizedBox(height: 20),
+
+              GameCard(
+
+                child: Column(
+
+                  children: [
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
 
                     if (emoji != null)
                       Text(
                         emoji!,
                         style: const TextStyle(fontSize: 80),
                       ),
+<<<<<<< HEAD
                     const SizedBox(height: 40),
+=======
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
 
                     IconButton(
                       onPressed: playSound,
@@ -217,16 +242,25 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
                         color: Colors.green,
                       ),
                     ),
+<<<<<<< HEAD
                     const SizedBox(height: 20),
 
                     const Text("استمع واختر الإجابة الصحيحة"),
                     const SizedBox(height: 20),
 
+=======
+
+                    const Text("استمع واختر الإجابة الصحيحة"),
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
                   ],
                 ),
               ),
 
+<<<<<<< HEAD
               const SizedBox(height: 30),
+=======
+              const SizedBox(height: 20),
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
 
               Expanded(
 

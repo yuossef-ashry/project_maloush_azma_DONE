@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
 import '../../common/widgets/base_math_game_screen.dart';
 
+<<<<<<< HEAD
 class DivisionGameScreen extends BaseMathGameScreen {
+=======
+import '../../common/widgets/game_background.dart';
+import '../../common/widgets/game_header.dart';
+import '../../common/widgets/game_progress_bar.dart';
+import '../../common/widgets/game_card.dart';
+import '../../common/widgets/game_option_button.dart';
+import '../../common/widgets/game_result_screen.dart';
+import '../../common/widgets/game_colors.dart';
+
+
+
+class DivisionGameScreen extends StatefulWidget {
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
   const DivisionGameScreen({super.key});
 
   @override

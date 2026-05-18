@@ -21,8 +21,14 @@ class _ShapesGameState extends State<ShapesGame> {
     {"image": "assets/images/dog.png", "name": "كلب"},
     {"image": "assets/images/cat.png", "name": "قطة"},
     {"image": "assets/images/lion.png", "name": "أسد"},
+<<<<<<< HEAD
     {"image": "assets/images/horse.jpg", "name": "حصان"},
 
+=======
+    {"image": "assets/images/elephant.jpg", "name": "فيل"},
+    {"image": "assets/images/horse.jpg", "name": "حصان"},
+    {"image": "assets/images/bird.jpg", "name": "طائر"},
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
   ];
 
   final List<String> words = ["كلب", "قطة", "أسد", "حصان", ];

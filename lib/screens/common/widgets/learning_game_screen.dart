@@ -4,7 +4,11 @@ import 'package:audioplayers/audioplayers.dart';
 import '../../common/widgets/game_background.dart';
 import '../../common/widgets/game_header.dart';
 import '../../common/widgets/game_progress_bar.dart';
+<<<<<<< HEAD
 import '../../common/widgets/game_card_learn.dart';
+=======
+import '../../common/widgets/game_card.dart';
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
 import '../../common/widgets/game_option_button.dart';
 import '../../common/widgets/app_colors.dart';
 
@@ -95,10 +99,17 @@ class _LearningGameScreenState extends State<LearningGameScreen> {
                 total: widget.items.length,
               ),
 
+<<<<<<< HEAD
               const SizedBox(height: 30),
 
               Expanded(
                 child: GameCardLearn(
+=======
+              const SizedBox(height: 25),
+
+              Expanded(
+                child: GameCard(
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -139,7 +150,11 @@ class _LearningGameScreenState extends State<LearningGameScreen> {
                 ),
               ),
 
+<<<<<<< HEAD
               const SizedBox(height: 30),
+=======
+              const SizedBox(height: 20),
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
 
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -165,8 +180,11 @@ class _LearningGameScreenState extends State<LearningGameScreen> {
                   ],
                 ),
               ),
+<<<<<<< HEAD
 
               const SizedBox(height: 20),
+=======
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
             ],
           ),
         ),

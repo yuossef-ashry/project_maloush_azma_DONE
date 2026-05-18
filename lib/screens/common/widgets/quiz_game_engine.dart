@@ -4,7 +4,11 @@ import 'package:flutter/material.dart';
 import 'game_background.dart';
 import 'game_header.dart';
 import 'game_progress_bar.dart';
+<<<<<<< HEAD
 import 'game_card_number.dart';          // 👈 استبدلنا game_card.dart بـ game_card_number.dart
+=======
+import 'game_card.dart';
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
 import 'game_result_screen.dart';
 import 'game_option_button.dart';
 import 'app_colors.dart';
@@ -126,34 +130,63 @@ class _QuizGameEngineState extends State<QuizGameEngine> {
               : Column(
             children: [
               const SizedBox(height: 10),
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
               GameHeader(
                 title: widget.title,
                 score: score,
               ),
+<<<<<<< HEAD
               const SizedBox(height: 10),
+=======
+
+              const SizedBox(height: 10),
+
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
               GameProgressBar(
                 current: index,
                 total: widget.questions.length,
               ),
+<<<<<<< HEAD
               const SizedBox(height: 20), // قللنا المسافة من 60 إلى 20 لتلائم الكارد
 
               // ✅ استخدام GameCardNumber بدلاً من GameCard
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: GameCardNumber(   // 👈 هنا التغيير الأساسي
+=======
+
+              const SizedBox(height: 20),
+
+              // ✅ CARD FIXED (no overflow)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: GameCard(
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (image != null)
                         Text(
                           image!,
+<<<<<<< HEAD
                           style: const TextStyle(fontSize: 80),
                         ),
                       const SizedBox(height: 20),
+=======
+                          style: const TextStyle(fontSize: 70),
+                        ),
+
+                      const SizedBox(height: 10),
+
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
                       Text(
                         question,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
+<<<<<<< HEAD
                           fontSize: 30, // قللنا الخط قليلاً ليلائم المساحة
                           fontWeight: FontWeight.bold,
                         ),
@@ -164,6 +197,19 @@ class _QuizGameEngineState extends State<QuizGameEngine> {
                         style: TextStyle(fontSize: 20),
                       ),
                       const SizedBox(height: 10),
+=======
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      const Text(
+                        "اختار الإجابة الصحيحة",
+                        style: TextStyle(fontSize: 16),
+                      ),
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
                     ],
                   ),
                 ),
@@ -171,6 +217,10 @@ class _QuizGameEngineState extends State<QuizGameEngine> {
 
               const SizedBox(height: 20),
 
+<<<<<<< HEAD
+=======
+              // ✅ GRID FIXED PROPERLY
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -187,6 +237,10 @@ class _QuizGameEngineState extends State<QuizGameEngine> {
                     ),
                     itemBuilder: (context, i) {
                       final opt = options[i];
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
                       return GameOptionButton(
                         text: getText(opt),
                         color: getColor(opt),

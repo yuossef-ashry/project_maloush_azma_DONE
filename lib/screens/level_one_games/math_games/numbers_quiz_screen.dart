@@ -21,10 +21,17 @@ class NumbersQuizScreen extends StatelessWidget {
 
       questions: const [
 
+<<<<<<< HEAD
         {"emoji": "👆","number": "1", "sound": "1.mp3"},
         {"emoji": "✌️","number": "2", "sound": "2.mp3"},
         {"emoji": "🤟","number": "3", "sound": "3.mp3"},
         {"emoji": "🖐️","number": "4", "sound": "4.mp3"},
+=======
+        {"number": "1", "sound": "1.mp3"},
+        {"number": "2", "sound": "2.mp3"},
+        {"number": "3", "sound": "3.mp3"},
+        {"number": "4", "sound": "4.mp3"},
+>>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
       ],
     );
   }
