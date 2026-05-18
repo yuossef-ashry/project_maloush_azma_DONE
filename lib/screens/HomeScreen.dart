@@ -11,7 +11,6 @@ class HomeScreen extends StatelessWidget {
       body: Container(
         width: double.infinity,
 
-        /// 🎨 الخلفية المتدرجة
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -27,37 +26,38 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
-              /// 🏷️ العنوان
               const Text(
-                "تعليم الأطفال",
+                " متعلمي الصغير",
                 style: TextStyle(
-                  fontSize: 34,
+                  fontSize: 36,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
 
-              const SizedBox(height: 20),
 
-              /// 👦 الماسكوت داخل دائرة
+              const SizedBox(height: 50),
+
+
               Container(
-                width: 190,
-                height: 190,
+                width: 230,
+                height: 230,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      blurRadius: 20,
-                      spreadRadius: 3,
                       color: Colors.black.withOpacity(0.25),
+                      blurRadius: 30,
                       offset: const Offset(0, 8),
                     ),
                   ],
                 ),
+
+
+
                 child: Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(15),
                   child: ClipOval(
                     child: Image.asset(
                       "assets/images/kid.png",
@@ -69,39 +69,37 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 40),
 
-              /// 🟠 المستوى الأول
-              buildLevelCard(
-                context,
+              LevelCard(
                 title: "المستوى الأول",
                 subtitle: "الروضة",
                 stars: 5,
                 color: Colors.orange,
                 image: "assets/images/bear.png",
+
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LevelOneScreen(),
+                      builder: (_) => const LevelOneScreen(),
                     ),
                   );
                 },
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 20),
 
-              /// 🟣 المستوى الثاني
-              buildLevelCard(
-                context,
+              LevelCard(
                 title: "المستوى الثاني",
                 subtitle: "المدرسة",
                 stars: 8,
                 color: Colors.purple,
                 image: "assets/images/bag.png",
+
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LevelTwoScreen(),
+                      builder: (_) => const LevelTwoScreen(),
                     ),
                   );
                 },
@@ -112,18 +110,31 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget buildLevelCard(
-      BuildContext context, {
-        required String title,
-        required String subtitle,
-        required int stars,
-        required Color color,
-        required String image,
-        required VoidCallback onTap,
-      }) {
+class LevelCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final int stars;
+  final Color color;
+  final String image;
+  final VoidCallback onTap;
+
+  const LevelCard({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.stars,
+    required this.color,
+    required this.image,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+
       child: Container(
         width: 340,
         padding: const EdgeInsets.all(18),
@@ -134,8 +145,8 @@ class HomeScreen extends StatelessWidget {
 
           boxShadow: const [
             BoxShadow(
-              blurRadius: 15,
               color: Colors.black26,
+              blurRadius: 15,
               offset: Offset(0, 8),
             ),
           ],
@@ -143,12 +154,9 @@ class HomeScreen extends StatelessWidget {
 
         child: Row(
           children: [
-
-            /// 🧸 صورة المستوى
             Container(
               width: 70,
               height: 70,
-
               decoration: const BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
@@ -165,7 +173,6 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(width: 15),
 
-            /// 📝 النصوص والنجوم
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,25 +199,27 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 10),
 
-                  /// ⭐ النجوم
+          
                   Row(
                     children: List.generate(
                       stars,
-                          (index) => const Padding(
-                        padding: EdgeInsets.only(right: 2),
-                        child: Icon(
-                          Icons.star,
-                          color: Colors.yellow,
-                          size: 18,
-                        ),
-                      ),
+                          (index) {
+                        return const Padding(
+                          padding: EdgeInsets.only(right: 2),
+                          child: Icon(
+                            Icons.star,
+                            color: Colors.yellow,
+                            size: 18,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],
               ),
             ),
 
-            /// ➡️ السهم
+         
             const Icon(
               Icons.arrow_forward_ios,
               color: Colors.white,

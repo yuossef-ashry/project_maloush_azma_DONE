@@ -6,7 +6,6 @@ import 'app_constants.dart';
 class GameCard extends StatelessWidget {
 
   final Widget child;
-
   final EdgeInsets? padding;
 
   const GameCard({
@@ -18,33 +17,29 @@ class GameCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: 20,
-      ),
+    return Center(
+      child: Container(
 
-      padding:
-      padding ??
-          const EdgeInsets.all(
-            AppConstants.cardPadding,
-          ),
+        width: 400,
+        height: 300,
 
-      decoration: BoxDecoration(
-        color: AppColors.white,
+        margin: const EdgeInsets.symmetric(horizontal: 20),
 
-        borderRadius: BorderRadius.circular(
-          AppConstants.cardRadius,
+        padding: padding ?? const EdgeInsets.all(AppConstants.cardPadding),
+
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(AppConstants.cardRadius),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.black26,
+              blurRadius: 10,
+            ),
+          ],
         ),
 
-        boxShadow: const [
-          BoxShadow(
-            color: AppColors.black26,
-            blurRadius: 10,
-          ),
-        ],
+        child: child,
       ),
-
-      child: child,
     );
   }
 }

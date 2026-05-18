@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../common/widgets/game_background.dart';
 import '../../common/widgets/game_header.dart';
 import '../../common/widgets/game_progress_bar.dart';
-import '../../common/widgets/game_card.dart';
+import '../../common/widgets/game_card_learnmonth.dart';
+
+// import '../../common/widgets/game_card.dart';
 
 class MonthsScreen extends StatefulWidget {
   const MonthsScreen({super.key});
@@ -78,7 +80,7 @@ class _MonthsScreenState extends State<MonthsScreen> {
               const SizedBox(height: 25),
 
               // ───────── MONTH CARD ─────────
-              GameCard(
+              GameCardLearnmonth(
                 child: Column(
                   children: [
                     Container(

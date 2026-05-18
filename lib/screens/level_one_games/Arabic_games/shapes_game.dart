@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import '../../common/widgets/game_background.dart';
 import '../../common/widgets/game_header.dart';
 import '../../common/widgets/game_progress_bar.dart';
-import '../../common/widgets/game_card.dart';
+import '../../common/widgets/game_card_shapes.dart';
+
 import '../../common/widgets/game_result_screen.dart';
 import '../../common/widgets/game_colors.dart';
 
@@ -20,12 +21,11 @@ class _ShapesGameState extends State<ShapesGame> {
     {"image": "assets/images/dog.png", "name": "كلب"},
     {"image": "assets/images/cat.png", "name": "قطة"},
     {"image": "assets/images/lion.png", "name": "أسد"},
-    {"image": "assets/images/elephant.png", "name": "فيل"},
-    {"image": "assets/images/horse.png", "name": "حصان"},
-    {"image": "assets/images/bird.png", "name": "طائر"},
+    {"image": "assets/images/horse.jpg", "name": "حصان"},
+
   ];
 
-  final List<String> words = ["كلب", "قطة", "أسد", "فيل", "حصان", "طائر"];
+  final List<String> words = ["كلب", "قطة", "أسد", "حصان", ];
 
   int index = 0;
   int score = 0;
@@ -152,14 +152,14 @@ class _ShapesGameState extends State<ShapesGame> {
         const SizedBox(height: 20),
 
         // IMAGE
-        GameCard(
+        GameCardShapes(
           child: Image.asset(image, height: 150),
         ),
 
         const SizedBox(height: 15),
 
         // DROP AREA
-        GameCard(
+        GameCardShapes(
           child: DragTarget<String>(
             onAccept: checkAnswer,
             builder: (context, _, __) {

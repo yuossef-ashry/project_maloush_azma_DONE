@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../common/widgets/game_background.dart';
 import '../../common/widgets/game_header.dart';
 import '../../common/widgets/game_progress_bar.dart';
-import '../../common/widgets/game_card.dart';
+import '../../common/widgets/game_card_learn.dart';
 
 class QuranScreen extends StatefulWidget {
   const QuranScreen({super.key});
@@ -82,7 +82,7 @@ class _QuranScreenState extends State<QuranScreen> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: SingleChildScrollView(
-                    child: GameCard(
+                    child: GameCardLearn(
                       child: Column(
                         children: [
                           Container(
@@ -124,20 +124,20 @@ class _QuranScreenState extends State<QuranScreen> {
                             ),
                           ),
 
-                          const Divider(height: 24),
+                          const Divider(height: 20),
 
                           Text(
                             surah["text"],
                             textAlign: TextAlign.center,
                             textDirection: TextDirection.rtl,
                             style: const TextStyle(
-                              fontSize: 20,
+                              fontSize: 15,
                               height: 2,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
 
-                          const Divider(height: 24),
+                          const Divider(height: 20),
 
                           Container(
                             padding: const EdgeInsets.all(12),
