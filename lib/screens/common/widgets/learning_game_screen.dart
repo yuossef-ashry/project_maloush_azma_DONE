@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:teaching_children/screens/common/widgets/game_card.dart';
 
 import '../../common/widgets/game_background.dart';
 import '../../common/widgets/game_header.dart';
 import '../../common/widgets/game_progress_bar.dart';
-<<<<<<< HEAD
 import '../../common/widgets/game_card_learn.dart';
-=======
-import '../../common/widgets/game_card.dart';
->>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
 import '../../common/widgets/game_option_button.dart';
 import '../../common/widgets/app_colors.dart';
 
@@ -38,7 +35,6 @@ class _LearningGameScreenState extends State<LearningGameScreen> {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       playSound();
     });
@@ -47,11 +43,8 @@ class _LearningGameScreenState extends State<LearningGameScreen> {
   Future<void> playSound() async {
     try {
       await player.stop();
-
       await player.play(
-        AssetSource(
-          "sounds/${currentItem["sound"]}.mp3",
-        ),
+        AssetSource("sounds/${currentItem["sound"]}.mp3"),
       );
     } catch (e) {
       debugPrint("Sound Error: $e");
@@ -99,21 +92,14 @@ class _LearningGameScreenState extends State<LearningGameScreen> {
                 total: widget.items.length,
               ),
 
-<<<<<<< HEAD
               const SizedBox(height: 30),
 
+              // البطاقة الرئيسية
               Expanded(
                 child: GameCardLearn(
-=======
-              const SizedBox(height: 25),
-
-              Expanded(
-                child: GameCard(
->>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-
                       if (currentItem["emoji"] != null)
                         Text(
                           currentItem["emoji"]!,
@@ -150,12 +136,9 @@ class _LearningGameScreenState extends State<LearningGameScreen> {
                 ),
               ),
 
-<<<<<<< HEAD
-              const SizedBox(height: 30),
-=======
               const SizedBox(height: 20),
->>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
 
+              // أزرار التنقل
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
@@ -167,9 +150,7 @@ class _LearningGameScreenState extends State<LearningGameScreen> {
                         onTap: prev,
                       ),
                     ),
-
                     const SizedBox(width: 10),
-
                     Expanded(
                       child: GameOptionButton(
                         text: "التالي",
@@ -180,11 +161,8 @@ class _LearningGameScreenState extends State<LearningGameScreen> {
                   ],
                 ),
               ),
-<<<<<<< HEAD
 
               const SizedBox(height: 20),
-=======
->>>>>>> 1472ab6b5b00eb0985135fbbc09239836360ebe8
             ],
           ),
         ),

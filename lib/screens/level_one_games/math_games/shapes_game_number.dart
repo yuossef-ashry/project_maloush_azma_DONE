@@ -8,20 +8,21 @@ import '../../common/widgets/game_card_shapes.dart';
 import '../../common/widgets/game_result_screen.dart';
 import '../../common/widgets/game_colors.dart';
 
-class NumbersGame extends StatefulWidget {
-  const NumbersGame({super.key});
+class ShapesGameNumber extends StatefulWidget {
+  const ShapesGameNumber({super.key});
 
   @override
-  State<NumbersGame> createState() => _NumbersGameState();
+  State<ShapesGameNumber> createState() => _ShapesGameNumberState();
 }
 
-class _NumbersGameState extends State<NumbersGame> {
+class _ShapesGameNumberState extends State<ShapesGameNumber> {
   // قائمة الأسئلة: إيموجي والكلمة الصحيحة
   final List<Map<String, String>> questions = [
     {"emoji": "1️⃣", "word": "واحد"},
     {"emoji": "2️⃣", "word": "اثنان"},
     {"emoji": "3️⃣", "word": "ثلاثة"},
     {"emoji": "4️⃣", "word": "أربعة"},
+    {"emoji": "5️⃣", "word": "خمسة"},
   ];
 
   // قائمة كل الكلمات المستخدمة للخيارات العشوائية
@@ -49,7 +50,6 @@ class _NumbersGameState extends State<NumbersGame> {
   String get currentEmoji => questions[index]["emoji"]!;
   String get correctWord => questions[index]["word"]!;
 
-  // توليد 3 خيارات: الإجابة الصحيحة + كلمتين عشوائيتين مختلفتين
   void generateOptions() {
     final rand = Random();
     Set<String> set = {correctWord};
@@ -146,15 +146,12 @@ class _NumbersGameState extends State<NumbersGame> {
         ),
         const SizedBox(height: 20),
 
-        // عرض الإيموجي كبير
         GameCardShapes(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Text(
               currentEmoji,
-              style: const TextStyle(
-                fontSize: 80,
-              ),
+              style: const TextStyle(fontSize: 80),
               textAlign: TextAlign.center,
             ),
           ),
@@ -162,7 +159,6 @@ class _NumbersGameState extends State<NumbersGame> {
 
         const SizedBox(height: 15),
 
-        // منطقة إسقاط الكلمة
         GameCardShapes(
           child: DragTarget<String>(
             onAccept: checkAnswer,
@@ -205,7 +201,6 @@ class _NumbersGameState extends State<NumbersGame> {
 
         const SizedBox(height: 15),
 
-        // خيارات الكلمات القابلة للسحب
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
